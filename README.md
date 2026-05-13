@@ -2,7 +2,7 @@
 Intern: Ganavi N
 Program: CyArt Internship Program
 Week: 2 — Advanced Threat Analysis, Security Frameworks & Incident Response
-Deadline: Friday 4:30 PM
+
 ---
 📁 Repository Structure
 ```
