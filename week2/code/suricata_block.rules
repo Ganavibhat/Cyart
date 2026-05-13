@@ -1,0 +1,28 @@
+# Suricata IDS/IPS Rules — CyArt Internship Week 2
+# Author: Ganavi N
+# Target: 192.168.10.4 (Metasploitable2) | Kali: 192.168.10.3
+# Reference: https://suricata.readthedocs.io/en/latest/rules/
+
+# ── Rule 1: Block known malicious IP ─────────────────────────────────────────
+drop ip 192.168.10.3 any -> any any (msg:"Block Malicious IP 192.168.10.3"; sid:1000001; rev:1;)
+
+# ── Rule 2: Detect vsftpd 2.3.4 Backdoor Trigger ─────────────────────────────
+alert tcp any any -> any 21 (msg:"VSFTPD 2.3.4 Backdoor Attempt - Smiley Username"; content:":)"; nocase; flow:to_server,established; sid:1000002; rev:1; classtype:attempted-admin; metadata:mitre_technique T1190;)
+
+# ── Rule 3: Detect SYN Flood ─────────────────────────────────────────────────
+alert tcp any any -> $HOME_NET any (msg:"Potential SYN Flood Attack"; flags:S; threshold:type both, track by_src, count 100, seconds 10; sid:1000003; rev:1; classtype:denial-of-service; metadata:mitre_technique T1498;)
+
+# ── Rule 4: Detect SSH Brute Force ───────────────────────────────────────────
+alert tcp any any -> $HOME_NET 22 (msg:"SSH Brute Force Attempt"; flow:to_server,established; threshold:type both, track by_src, count 5, seconds 60; sid:1000004; rev:1; classtype:attempted-user; metadata:mitre_technique T1110;)
+
+# ── Rule 5: Detect Netcat Reverse Shell ──────────────────────────────────────
+alert tcp $HOME_NET any -> any 4444 (msg:"Possible Netcat Reverse Shell - Port 4444"; flow:to_server,established; sid:1000005; rev:1; classtype:trojan-activity; metadata:mitre_technique T1105;)
+
+# ── Rule 6: Detect Nmap Port Scan ────────────────────────────────────────────
+alert tcp any any -> $HOME_NET any (msg:"Nmap Port Scan Detected"; flags:S; threshold:type both, track by_src, count 20, seconds 5; sid:1000006; rev:1; classtype:network-scan; metadata:mitre_technique T1046;)
+
+# ── Rule 7: Detect Suspicious HTTP C2 Traffic ────────────────────────────────
+alert http $HOME_NET any -> $EXTERNAL_NET any (msg:"Suspicious Outbound HTTP - Possible C2"; http.method; content:"POST"; http.uri; content:"/beacon"; nocase; sid:1000007; rev:1; classtype:trojan-activity; metadata:mitre_technique T1071;)
+
+# ── Rule 8: Detect FTP Anonymous Login ───────────────────────────────────────
+alert tcp any any -> $HOME_NET 21 (msg:"FTP Anonymous Login Attempt"; content:"USER anonymous"; nocase; flow:to_server,established; sid:1000008; rev:1; classtype:policy-violation; metadata:mitre_technique T1078;)

@@ -1,0 +1,47 @@
+title: Suspicious PowerShell Activity
+id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+status: stable
+description: |
+  Detects suspicious PowerShell command execution using the -Command flag.
+  This technique is commonly used by attackers for execution and download cradles.
+  Maps to MITRE ATT&CK T1059.001 (PowerShell).
+author: Ganavi N
+date: 2024/04/29
+references:
+  - https://attack.mitre.org/techniques/T1059/001/
+  - https://docs.microsoft.com/en-us/powershell/
+logsource:
+  category: process_creation
+  product: windows
+detection:
+  selection_image:
+    Image|endswith:
+      - '\powershell.exe'
+      - '\pwsh.exe'
+  selection_cmd:
+    CommandLine|contains:
+      - '-Command'
+      - '-EncodedCommand'
+      - '-Enc '
+      - 'Invoke-Expression'
+      - 'IEX'
+      - 'Invoke-WebRequest'
+      - 'DownloadString'
+      - 'DownloadFile'
+  condition: selection_image and selection_cmd
+falsepositives:
+  - Legitimate administrative scripts using PowerShell -Command
+  - Software installers that use PowerShell for configuration
+level: medium
+tags:
+  - attack.execution
+  - attack.t1059.001
+  - attack.defense_evasion
+  - attack.t1027
+fields:
+  - Image
+  - CommandLine
+  - ParentImage
+  - ParentCommandLine
+  - User
+  - ComputerName
